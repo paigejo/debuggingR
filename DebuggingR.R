@@ -36,14 +36,17 @@ f(x)
 
 
 
-# other R behavior on error:
+# Set R to print the full function stack at the time of the error
 options(error=traceback)
 f(x)
 g(x)
 
 
 
-
+# allow the user to see environments in any function in the 
+# stack at the time of the error. VERY USEFUL!!! Note in 
+# particular the "Next", "Continue" and "Stop" buttons that 
+# appear over the console when in debug mode.
 options(error=recover)
 g(x) # error occurs in frame 2
 
@@ -56,36 +59,43 @@ g(x) # error occurs in frame 2
 
 # options(warn=2) ----
 
-# default behavior in R
+# default behavior in R: 
+# warnings stored until top level function returns
 options(warn=0)
 
+x = rep(1, 2000000)
+x[1] = -1
 fun = function(x) {
   log(x)
 }
-fun(-1)
+temp = sapply(x, fun)
 
+# warnings printed as they occur (recommended in general). 
+options(warn=1)
+temp = sapply(x, fun)
 
-
+# (technically "temp = fun(x)" is equivalent, but it doesn't 
+#  illustrate the difference in when the warning occurs)
 
 # warnings are treated like errors
 options(warn=2)
 fun(-1)
 
-
-
+# NOTE: 
+# options(warn=2) can be used in conjunction 
+# with options(error=recover)!
 
 # reset to default behavior
 options(warn=0)
 
 
 
-
-
 # debug, undebug, debugonce ----
 
 # debug and undebug are very useful for going through functions 
-# line by line, which is EXTREMELY important for debugging
+# line by line, which is very important for debugging.
 
+x = 5
 debug(f)
 f(x)
 g(x)
@@ -154,11 +164,18 @@ test = h(x)
 # options(error=recover)
 ## Single most useful debug tool in R
 
-# options(warn=2) vs options(warn=0)
-## treats warnings like errors
+# options(warn=2) vs options(warn=1) vs options(warn=0)
+## 2: treats warnings like errors (useful for debugging, 
+##    can be used in conjunction with options(error=recover))
+## 1: prints warnings as they occur (recommended in general)
+## 0: prints warnings after top level function finishes 
+##    (default)
 
 # debug, undebug, debugonce
-## useful for entering debug mode when function is called
+## Useful for entering debug mode when function is called.
+## Generally browser() can be used instead, but if  
+## you are on the cluster and changing the code is 
+## inconvenient, these make good alternatives
 
 # print() statements
 ## Overrated for debugging in R, but can sometimes help, particularly when the 
